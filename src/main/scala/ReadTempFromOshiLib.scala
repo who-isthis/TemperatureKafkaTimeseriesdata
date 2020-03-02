@@ -46,8 +46,11 @@ object ReadTempFromOshiLib extends App {
 
 
   printCpu(hal.getProcessor)
+    printProcesses(os, hal.getMemory)
 
-  //printProcesses(os, hal.getMemory)
+  printServices(os)
+  printSensors(hal.getSensors());
+
 
   private def printOperatingSystem(os:OperatingSystem ) {
     oshi.add(String.valueOf(os));
@@ -149,25 +152,50 @@ object ReadTempFromOshiLib extends App {
 
 
 
-  /*private def printProcesses(os: OperatingSystem, memory: GlobalMemory): Unit = {
+  private def printProcesses(os: OperatingSystem, memory: GlobalMemory): Unit = {
     oshi.add("============================ Checking Processes================================")
     oshi.add("My PID: " + os.getProcessId + " with affinity " + os.getProcessAffinityMask(os.getProcessId))
     oshi.add("Processes: " + os.getProcessCount + ", Threads: " + os.getThreadCount)
     // Sort by highest CPU
-    val procs = util.Arrays.asList(os.getProcesses(5, ProcessSort.CPU))
-    oshi.add("   PID  %CPU %MEM       VSZ       RSS Name")
+    val procs = os.getProcesses(5, ProcessSort.CPU).toList
     var i = 0
     while ( {
       i < procs.size && i < 5
     }) {
       val p = procs.get(i)
-      oshi.add(String.format(" %5d %5.1f %4.1f %9s %9s %s", p.getProcessID, 100d * (p.getKernelTime + p.getUserTime) / p.getUpTime, 100d * p.getResidentSetSize / memory.getTotal, FormatUtil.formatBytes(p.getVirtualSize), FormatUtil.formatBytes(p.getResidentSetSize), p.getName))
+      oshi.add(s"ProcessId ${p.getProcessID} ||||NAME : ${p.getName} ||||%CPU :  ${100d * (p.getKernelTime + p.getUserTime) / p.getUpTime} ||||%MEM : ${100d * p.getResidentSetSize / memory.getTotal}  ||||VirtualSize :  ${FormatUtil.formatBytes(p.getVirtualSize)} ")
 
       {
         i += 1; i - 1
       }
     }
-  }*/
+  }
+
+
+
+  private def printServices(os: OperatingSystem): Unit = {
+    oshi.add("========================SERVICES ========================")
+    oshi.add("   PID   State   Name")
+    // DO 5 each of running and stopped
+    var i = 0
+    for (s <- os.getServices) {
+      if (s.getState == OSService.State.RUNNING && {
+        i += 1; i - 1
+      } < 5) oshi.add(s"PID : ${ s.getProcessID} |||| State : ${s.getState} |||| Name : ${s.getName}")
+    }
+    i = 0
+    for (s <- os.getServices) {
+      if (s.getState == OSService.State.STOPPED && {
+        i += 1; i - 1
+      } < 5) oshi.add(s"PID : ${ s.getProcessID} |||| State : ${s.getState} |||| Name : ${s.getName}")
+    }
+  }
+
+
+  private def printSensors(sensors: Sensors): Unit = {
+    oshi.add("==========================Checking Sensors...======================")
+    oshi.add("Sensors: " + sensors.toString)
+  }
 
   oshi.foreach(println)
 }

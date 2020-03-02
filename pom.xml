@@ -23,6 +23,12 @@
             <type>pom</type>
         </dependency>
 
+        <dependency>
+            <groupId>com.profesorfalken</groupId>
+            <artifactId>jPowerShell</artifactId>
+            <version>3.0.4</version>
+        </dependency>
+
 
         <!--<dependency>
             <groupId>com.profesorfalken</groupId>
