@@ -2,20 +2,34 @@ package Hardware
 
 import com.profesorfalken.jpowershell.PowerShell
 import kafka.TempReaderProducer
+import kafka.SensorData
 
 object TemperaturePowerShell extends App {
   val pwrShl = PowerShell.openSession
 
-
-    val temperatureResponse = pwrShl.executeCommand("Get-WmiObject -Class Win32_PerfFormattedData_Counters_ThermalZoneInformation |Select-Object Name,Temperature").getCommandOutput
-    println(s"Response ${temperatureResponse}")
-  val f = temperatureResponse.startsWith("\\_")
-  println(s"first : name == ${f}")
-
-    //val kfkProducer = new TempReaderProducer(temperatureResponse)
+  val kfkProducer = new TempReaderProducer
+  while (true) {
 
 
+    val temperatureResponse = pwrShl.executeCommand("Get-WmiObject -Class Win32_PerfFormattedData_Counters_ThermalZoneInformation |%{ \"{0,-10}{1,-1}\" -f $_.Name,$_.Temperature}").getCommandOutput
+    println(s"${temperatureResponse}")
+    temperatureResponse.split("\n").foreach {
+      ln =>
+        val arr = ln.split(" ")
+        val sensorName = arr(0)
+        val temperature = arr(1)
+        println(sensorName)
+        println(temperature)
+        val senseData = SensorData(sensorName, temperature)
 
-      pwrShl.close()
+        kfkProducer.addRecod(senseData)
+
+
+    }
+  }
+  kfkProducer.closeProducer
+
+
+  pwrShl.close()
 
 }

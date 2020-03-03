@@ -4,11 +4,14 @@ import java.util.Properties
 
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 
-class TempReaderProducer(senseData : SensorData) {
+class TempReaderProducer {
 
-  val kafkaProducer = new KafkaProducer[String,String](createConfiguration)
+  lazy val kafkaProducer = new KafkaProducer[String,String](createConfiguration)
 
-  def apply(sensorData:SensorData): TempReaderProducer = new TempReaderProducer(sensorData)
+  def apply(): KafkaProducer[String, String] = {
+    new TempReaderProducer()
+    kafkaProducer
+  }
 
   private def createConfiguration ={
     val props = new Properties()
@@ -19,7 +22,7 @@ class TempReaderProducer(senseData : SensorData) {
     props
   }
 
-  def addRecod={
+  def addRecod(senseData : SensorData)={
     val record: ProducerRecord[String, String] = new ProducerRecord[String,String]("my-topic",senseData.sensorName,senseData.sensorTemperature)
     kafkaProducer.send(record)
   }
