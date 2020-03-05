@@ -1,5 +1,7 @@
 package Hardware
 
+import java.time.LocalDateTime
+
 import com.profesorfalken.jpowershell.PowerShell
 import kafka.TempReaderProducer
 import kafka.SensorData
@@ -16,7 +18,7 @@ object TemperaturePowerShell extends App {
     temperatureResponse.split("\n").foreach {
       ln =>
         val arr = ln.split(" ")
-        val sensorName = arr(0)
+        val sensorName = s"${arr(0)}  ${LocalDateTime.now()}"
         val temperature = arr(1)
         println(sensorName)
         println(temperature)

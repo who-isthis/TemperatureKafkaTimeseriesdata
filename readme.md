@@ -18,6 +18,16 @@ As because once the kafka will produce the message the consumer is available.
 Kafka is doing lots of loading into offset need to check what is that. 
 What is kafka **consumer group** and it's job and **consumer offset**.
 <br>
+-----
+Problem 1
+
+Now when i am stoping the kafka-console-consumer and restarting again it's not reading the consecutive messages.
+<br>That might be issue of some offset .
+from book <br>
+**Each message in a given partition has a unique offset. By storing the offset of the last consumed message for each partition, either in Zookeeper or in Kafka itself, a consumer can stop and restart without losing its place.** 
+<br> This can be solved via offset management . TODO Read it and implement this.
+
+-----
 
 
 
